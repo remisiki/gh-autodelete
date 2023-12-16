@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         github repo delete auto confirm
 // @namespace    http://tampermonkey.net/
-// @version      0.0.2
+// @version      0.0.3
 // @description  auto complete the confirm input when deleting a repo on github
 // @author       remisiki
-// @match        https://github.com/*/settings
+// @match        https://github.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=github.com
 // @grant        none
 // ==/UserScript==
