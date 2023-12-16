@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         github repo delete auto confirm
 // @namespace    http://tampermonkey.net/
-// @version      0.0.1
+// @version      0.0.2
 // @description  auto complete the confirm input when deleting a repo on github
 // @author       remisiki
 // @match        https://github.com/*/settings
@@ -13,16 +13,28 @@
     'use strict';
 
     // Your code here...
-    document.querySelector("#dialog-show-repo-delete-menu-dialog").addEventListener("click", () => {
-        document.querySelector("#repo-delete-proceed-button").click();
-        setTimeout(() => {
-            document.querySelector("#repo-delete-proceed-button").click();
-            setTimeout(() => {
-                const confirmBox = document.querySelector("#verification_field");
-                confirmBox.value = confirmBox.getAttribute("data-repo-nwo");
-                confirmBox.dispatchEvent(new Event("focus"));
-                confirmBox.dispatchEvent(new Event("input"));
-            }, 100);
-        }, 0);
+    // https://stackoverflow.com/a/56760883
+    const rs = history.replaceState;
+    history.replaceState = () => {
+        rs.apply(history, arguments); // preserve normal functionality
+        window.dispatchEvent(new Event("locationchange")); // do something extra here; raise an event
+    };
+
+    window.addEventListener("locationchange", () => {
+        if (window.location.href.match(/https:\/\/github\.com\/.*?\/settings/g)) {
+            const handler = () => {
+                document.querySelector("#repo-delete-proceed-button").click();
+                setTimeout(() => {
+                    document.querySelector("#repo-delete-proceed-button").click();
+                    setTimeout(() => {
+                        const confirmBox = document.querySelector("#verification_field");
+                        confirmBox.value = confirmBox.getAttribute("data-repo-nwo");
+                        confirmBox.dispatchEvent(new Event("focus"));
+                        confirmBox.dispatchEvent(new Event("input"));
+                    }, 100);
+                }, 0);
+            };
+            document.querySelector("#dialog-show-repo-delete-menu-dialog").addEventListener("click", handler);
+        }
     });
 })();
